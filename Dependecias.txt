@@ -6,6 +6,8 @@ npm install bcrypt
 npm install -D @types/bcrypt
 npm install jsonwebtoken
 npm install -D @types/jsonwebtoken
+npm install pg
+npm install -D @types/pg
 
 
 OBS: O bcrypt é uma biblioteca utilizada para criptografar (hash) senhas antes de guardá-las na base de dados.
@@ -16,8 +18,10 @@ OBS: O bcrypt é uma biblioteca utilizada para criptografar (hash) senhas antes 
 
 
 
+Códigos para Gerar Algo
 
-
+GERAR um tokrn forte: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+GERAR senha hash:  node -e "const bcrypt=require('bcrypt'); bcrypt.hash('senha_do_usuario',10).then(console.log)"
 
 
 
@@ -37,7 +41,7 @@ CREATE TABLE usuarios (
     nome_completo VARCHAR(150) NOT NULL,
     email VARCHAR(120) UNIQUE NOT NULL,
     bi VARCHAR(20) UNIQUE,
-    idade INT,
+    data_nascimento DATE,
     morada VARCHAR(200),
     foto_perfil TEXT,
     telefone VARCHAR(20),
@@ -201,3 +205,30 @@ CREATE TABLE historico (
     REFERENCES ocorrencias(id_ocorrencia)
 );
 
+DO $$
+BEGIN
+
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM usuarios 
+        WHERE email = 'superadmin@gmail.com'
+    ) THEN
+
+        INSERT INTO usuarios (
+            nome_completo,
+            email,
+            senha,
+            tipo_funcao,
+            estado
+        )
+        VALUES (
+            'Super Administrador',
+            'superadmin@gmail.com',
+            '$2b$10$XMsTmSmwfVOep8YgFMFJhukT..t/Pt/Ol6A1nN/1g4XqMSrqQ5TYu',
+            'super_admin',
+            'confirmado'
+        );
+
+    END IF;
+
+END $$;
