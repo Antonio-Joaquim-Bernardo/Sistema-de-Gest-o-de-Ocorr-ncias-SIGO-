@@ -2,4 +2,202 @@
                                                     Lista das Dependências
 ====================================================================================================================================
 
+npm install bcrypt 
+npm install -D @types/bcrypt
+npm install jsonwebtoken
+npm install -D @types/jsonwebtoken
+
+
+OBS: O bcrypt é uma biblioteca utilizada para criptografar (hash) senhas antes de guardá-las na base de dados.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- ==================================
+-- TABELA USUÁRIOS
+-- ==================================
+
+CREATE TABLE usuarios (
+    id_usuario SERIAL PRIMARY KEY,
+    nome_completo VARCHAR(150) NOT NULL,
+    email VARCHAR(120) UNIQUE NOT NULL,
+    bi VARCHAR(20) UNIQUE,
+    idade INT,
+    morada VARCHAR(200),
+    foto_perfil TEXT,
+    telefone VARCHAR(20),
+    senha VARCHAR(255) NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    genero VARCHAR(20),
+
+    estado VARCHAR(20) DEFAULT 'pendente'
+    CHECK (
+        estado IN (
+            'pendente',
+            'confirmado',
+            'bloqueado'
+        )
+    ),
+
+    tipo_funcao VARCHAR(30) DEFAULT 'cidadao'
+    CHECK (
+        tipo_funcao IN (
+            'super_admin',
+            'admin_pna',
+            'admin_inema',
+            'admin_bombeiros',
+            'cidadao'
+        )
+    )
+);
+
+-- ==================================
+-- TABELA OCORRÊNCIAS
+-- ==================================
+
+CREATE TABLE ocorrencias (
+
+    id_ocorrencia SERIAL PRIMARY KEY,
+
+    id_usuario INT NOT NULL,
+
+    categoria VARCHAR(50) NOT NULL,
+
+    estado VARCHAR(30) DEFAULT 'aberto'
+    CHECK (
+        estado IN (
+            'aberto',
+            'em_atendimento',
+            'equipa_enviada',
+            'resolvida',
+            'cancelada'
+        )
+    ),
+
+    prioridade VARCHAR(20) DEFAULT 'media'
+    CHECK (
+        prioridade IN (
+            'baixa',
+            'media',
+            'alta',
+            'critica'
+        )
+    ),
+
+    titulo VARCHAR(150) NOT NULL,
+
+    descricao TEXT NOT NULL,
+
+    endereco TEXT,
+
+    latitude DECIMAL(10,7),
+
+    longitude DECIMAL(10,7),
+
+    entidade_responsavel VARCHAR(100),
+
+    data_abertura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    data_fechamento TIMESTAMP,
+
+    CONSTRAINT fk_usuario_ocorrencia
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuarios(id_usuario)
+);
+
+-- ==================================
+-- TABELA EVIDÊNCIAS
+-- ==================================
+
+CREATE TABLE evidencias (
+
+    id_evidencia SERIAL PRIMARY KEY,
+
+    id_ocorrencia INT NOT NULL,
+
+    tipo VARCHAR(20)
+    CHECK (
+        tipo IN (
+            'imagem',
+            'video',
+            'audio'
+        )
+    ),
+
+    arquivo TEXT NOT NULL,
+
+    data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_evidencia_ocorrencia
+    FOREIGN KEY (id_ocorrencia)
+    REFERENCES ocorrencias(id_ocorrencia)
+    ON DELETE CASCADE
+);
+
+-- ==================================
+-- TABELA NOTIFICAÇÕES
+-- ==================================
+
+CREATE TABLE notificacoes (
+
+    id_notificacao SERIAL PRIMARY KEY,
+
+    id_usuario INT NOT NULL,
+
+    id_ocorrencia INT NOT NULL,
+
+    mensagem TEXT NOT NULL,
+
+    lida BOOLEAN DEFAULT FALSE,
+
+    data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_notificacao_usuario
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuarios(id_usuario),
+
+    CONSTRAINT fk_notificacao_ocorrencia
+    FOREIGN KEY (id_ocorrencia)
+    REFERENCES ocorrencias(id_ocorrencia)
+);
+
+-- ==================================
+-- TABELA HISTÓRICO
+-- ==================================
+
+CREATE TABLE historico (
+
+    id_historico SERIAL PRIMARY KEY,
+
+    id_usuario INT NOT NULL,
+
+    id_ocorrencia INT NOT NULL,
+
+    acao VARCHAR(255) NOT NULL,
+
+    data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_historico_usuario
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuarios(id_usuario),
+
+    CONSTRAINT fk_historico_ocorrencia
+    FOREIGN KEY (id_ocorrencia)
+    REFERENCES ocorrencias(id_ocorrencia)
+);
 
