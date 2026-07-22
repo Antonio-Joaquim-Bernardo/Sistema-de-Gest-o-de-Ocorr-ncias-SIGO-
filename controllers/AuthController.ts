@@ -10,65 +10,94 @@ export default class AuthController {
     try {
       const dados = await req.json();
       const usuario = await AuthService.registrar(dados);
+
       return ApiResponse.criado(
         { usuario },
         "Usuário cadastrado com sucesso."
       );
     } catch (erro: any) {
-      return ApiResponse.erro(erro.message, 400);
+      return ApiResponse.erro(
+        erro.message,
+        400
+      );
     }
   }
 
   /**
-   * Realiza login e retorna token via cookie HTTP Only
+   * Realiza login e retorna token
    */
   static async login(req: NextRequest) {
     try {
       const { email, senha } = await req.json();
-      const resultado = await AuthService.login(email, senha);
+
+      const resultado =
+        await AuthService.login(
+          email,
+          senha
+        );
 
       const resposta = NextResponse.json(
         {
           sucesso: true,
           mensagem: "Login realizado com sucesso.",
           usuario: resultado.usuario,
+          token: resultado.token
         },
-        { status: 200 }
+        {
+          status: 200
+        }
       );
 
-      // Define cookie com token
-      resposta.cookies.set("token", resultado.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 dias
-        path: "/",
-      });
+      resposta.cookies.set(
+        "token",
+        resultado.token,
+        {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+          path: "/"
+        }
+      );
 
       return resposta;
+
     } catch (erro: any) {
-      return ApiResponse.erro(erro.message, 401);
+
+      return ApiResponse.erro(
+        erro.message,
+        401
+      );
+
     }
   }
 
   /**
-   * Logout – apenas remove o cookie
+   * Logout
    */
   static async logout() {
     const resposta = NextResponse.json(
       {
         sucesso: true,
-        mensagem: "Logout realizado com sucesso.",
+        mensagem: "Logout realizado com sucesso."
       },
-      { status: 200 }
+      {
+        status: 200
+      }
     );
-    resposta.cookies.set("token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 0,
-      path: "/",
-    });
+
+    resposta.cookies.set(
+      "token",
+      "",
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 0,
+        path: "/"
+      }
+    );
+
     return resposta;
   }
 }
