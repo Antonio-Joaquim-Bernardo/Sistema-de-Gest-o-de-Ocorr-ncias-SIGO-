@@ -1,0 +1,17 @@
+### Criar ocorrência
+
+POST http://localhost:3000/api/ocorrencias
+Content-Type: application/json
+
+
+{
+    "id_usuario": 1,
+    "id_categoria": 2,
+    "titulo": "Incêndio numa residência",
+    "descricao": "Foi identificado um incêndio numa casa, necessitando de intervenção.",
+    "prioridade": "alta",
+    "endereco": "Rua Principal do Uíge",
+    "latitude": -7.6087000,
+    "longitude": 15.0613000
+}
+
