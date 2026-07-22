@@ -1,18 +1,15 @@
 import { NextRequest } from "next/server";
-import OcorrenciaEntidadeController from "@/controllers/OcorrenciaEntidadeController";
+import EvidenciaController from "@/controllers/EvidenciaController";
 import { obterId } from "@/utils/helpers";
 
 interface Params {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(request: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    return await OcorrenciaEntidadeController.adicionar(
-      request,
-      obterId(id)
-    );
+    return await EvidenciaController.buscarPorId(request, obterId(id));
   } catch (error: any) {
     return Response.json(
       { sucesso: false, mensagem: error.message },
@@ -21,10 +18,10 @@ export async function POST(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function GET(request: NextRequest, { params }: Params) {
+export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    return await OcorrenciaEntidadeController.listar(obterId(id));
+    return await EvidenciaController.eliminar(request, obterId(id));
   } catch (error: any) {
     return Response.json(
       { sucesso: false, mensagem: error.message },

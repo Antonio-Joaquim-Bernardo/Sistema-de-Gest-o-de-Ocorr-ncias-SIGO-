@@ -1,6 +1,6 @@
-PATCH http://localhost:3000/api/usuarios/3/estado
+PATCH http://localhost:3000/api/ocorrencias/1
 Content-Type: application/json
 
 {
- "estado":"confirmado"
+    "estado":"em_atendimento"
 }

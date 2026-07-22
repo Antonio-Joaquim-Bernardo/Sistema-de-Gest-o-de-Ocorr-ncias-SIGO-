@@ -1,0 +1,24 @@
+-- ==========================================
+-- VIEWS PARA RELATÓRIOS
+-- ==========================================
+
+-- Exemplo: View para listar ocorrências com detalhes das entidades
+-- CREATE VIEW vw_ocorrencias_detalhadas AS
+-- SELECT 
+--     o.id_ocorrencia,
+--     o.titulo,
+--     o.descricao,
+--     o.estado,
+--     o.prioridade,
+--     o.data_abertura,
+--     u.nome_completo AS cidadao,
+--     c.nome AS categoria,
+--     STRING_AGG(e.nome, ', ') AS entidades
+-- FROM ocorrencias o
+-- JOIN usuarios u ON o.id_usuario = u.id_usuario
+-- JOIN categorias_ocorrencias c ON o.id_categoria = c.id_categoria
+-- LEFT JOIN ocorrencia_entidades oe ON o.id_ocorrencia = oe.id_ocorrencia
+-- LEFT JOIN entidades_responsaveis e ON oe.id_entidade = e.id_entidade
+-- GROUP BY o.id_ocorrencia, u.nome_completo, c.nome;
+
+-- (Podes adicionar views conforme necessidade)

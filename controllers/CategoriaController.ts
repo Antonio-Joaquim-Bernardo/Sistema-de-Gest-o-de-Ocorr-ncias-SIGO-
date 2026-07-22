@@ -1,112 +1,29 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import CategoriaService from "../services/CategoriaService";
-
+import ApiResponse from "../utils/response";
 
 export default class CategoriaController {
-
-
-
-    static async listar(){
-
-
-        try {
-
-
-            const categorias =
-
-                await CategoriaService.listarCategorias();
-
-
-
-            return NextResponse.json(
-
-                categorias,
-
-                {
-                    status:200
-                }
-
-            );
-
-
-
-        } catch(erro:any){
-
-
-            return NextResponse.json(
-
-                {
-                    mensagem:
-                    erro.message
-                },
-
-                {
-                    status:500
-                }
-
-            );
-
-
-        }
-
-
+  /**
+   * Lista todas as categorias de ocorrências
+   */
+  static async listar() {
+    try {
+      const categorias = await CategoriaService.listarCategorias();
+      return ApiResponse.sucesso(categorias);
+    } catch (erro: any) {
+      return ApiResponse.erroInterno(erro.message);
     }
+  }
 
-
-
-
-
-
-    static async buscarPorId(
-        id:number
-    ){
-
-
-        try {
-
-
-            const categoria =
-
-                await CategoriaService.buscarCategoria(
-                    id
-                );
-
-
-
-            return NextResponse.json(
-
-                categoria,
-
-                {
-                    status:200
-                }
-
-            );
-
-
-
-        } catch(erro:any){
-
-
-            return NextResponse.json(
-
-                {
-                    mensagem:
-                    erro.message
-                },
-
-                {
-                    status:404
-                }
-
-            );
-
-
-        }
-
-
+  /**
+   * Busca uma categoria por ID
+   */
+  static async buscarPorId(id: number) {
+    try {
+      const categoria = await CategoriaService.buscarCategoria(id);
+      return ApiResponse.sucesso(categoria);
+    } catch (erro: any) {
+      return ApiResponse.naoEncontrado(erro.message);
     }
-
-
-
+  }
 }

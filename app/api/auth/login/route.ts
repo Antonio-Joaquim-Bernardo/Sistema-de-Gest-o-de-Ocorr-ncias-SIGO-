@@ -2,5 +2,5 @@ import { NextRequest } from "next/server";
 import AuthController from "@/controllers/AuthController";
 
 export async function POST(request: NextRequest) {
-  return await AuthController.registrar(request);
+  return AuthController.login(request);
 }

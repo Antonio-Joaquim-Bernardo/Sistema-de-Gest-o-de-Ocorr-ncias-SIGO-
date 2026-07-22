@@ -1,15 +1,15 @@
 import { NextRequest } from "next/server";
-import UsuarioController from "@/controllers/UsuarioController";
+import EvidenciaController from "@/controllers/EvidenciaController";
 import { obterId } from "@/utils/helpers";
 
 interface Params {
   params: Promise<{ id: string }>;
 }
 
-export async function PATCH(request: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    return await UsuarioController.atualizarEstado(obterId(id), request);
+    return await EvidenciaController.listarPorOcorrencia(request, obterId(id));
   } catch (error: any) {
     return Response.json(
       { sucesso: false, mensagem: error.message },

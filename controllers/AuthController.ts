@@ -1,65 +1,74 @@
-import bcrypt from "bcrypt";
-import UsuarioService from "../services/UsuarioService";
-import UsuarioModel from "../models/UsuarioModel";
-import { gerarToken } from "../utils/jwt";
+import { NextRequest, NextResponse } from "next/server";
+import AuthService from "../services/AuthService";
+import ApiResponse from "../utils/response";
 
 export default class AuthController {
-
-    static async registrar(dados: any) {
-
-        const novoUsuario =
-            await UsuarioService.criarUsuario(dados);
-
-        return {
-            sucesso: true,
-            mensagem: "Usuário cadastrado com sucesso.",
-            usuario: novoUsuario
-        };
+  /**
+   * Registra um novo usuário (cidadão)
+   */
+  static async registrar(req: NextRequest) {
+    try {
+      const dados = await req.json();
+      const usuario = await AuthService.registrar(dados);
+      return ApiResponse.criado(
+        { usuario },
+        "Usuário cadastrado com sucesso."
+      );
+    } catch (erro: any) {
+      return ApiResponse.erro(erro.message, 400);
     }
+  }
 
-    static async login(
-        email: string,
-        senha: string
-    ) {
+  /**
+   * Realiza login e retorna token via cookie HTTP Only
+   */
+  static async login(req: NextRequest) {
+    try {
+      const { email, senha } = await req.json();
+      const resultado = await AuthService.login(email, senha);
 
-        const usuario =
-            await UsuarioModel.buscarPorEmail(email);
+      const resposta = NextResponse.json(
+        {
+          sucesso: true,
+          mensagem: "Login realizado com sucesso.",
+          usuario: resultado.usuario,
+        },
+        { status: 200 }
+      );
 
-        if (!usuario) {
-            throw new Error(
-                "Email ou senha inválidos."
-            );
-        }
+      // Define cookie com token
+      resposta.cookies.set("token", resultado.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7, // 7 dias
+        path: "/",
+      });
 
-        const senhaValida =
-            await bcrypt.compare(
-                senha,
-                usuario.senha
-            );
-
-        if (!senhaValida) {
-            throw new Error(
-                "Email ou senha inválidos."
-            );
-        }
-
-        const token =
-            gerarToken({
-                id_usuario: usuario.id_usuario,
-                email: usuario.email,
-                tipo_funcao: usuario.tipo_funcao
-            });
-
-        return {
-            sucesso: true,
-            token,
-            usuario: {
-                id_usuario: usuario.id_usuario,
-                nome_completo: usuario.nome_completo,
-                email: usuario.email,
-                tipo_funcao: usuario.tipo_funcao
-            }
-        };
+      return resposta;
+    } catch (erro: any) {
+      return ApiResponse.erro(erro.message, 401);
     }
+  }
 
+  /**
+   * Logout – apenas remove o cookie
+   */
+  static async logout() {
+    const resposta = NextResponse.json(
+      {
+        sucesso: true,
+        mensagem: "Logout realizado com sucesso.",
+      },
+      { status: 200 }
+    );
+    resposta.cookies.set("token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    });
+    return resposta;
+  }
 }
