@@ -43,20 +43,23 @@ export default class OcorrenciaModel {
     `, [id]);
     return resultado.rows[0] || null;
   }
-
-  static async atualizarEstado(id: number, estado: string) {
-    const resultado = await pool.query(`
-      UPDATE ocorrencias
-      SET estado = $1,
-          data_fechamento = CASE
-            WHEN $1 IN ('resolvida', 'cancelada') THEN CURRENT_TIMESTAMP
-            ELSE data_fechamento
-          END
-      WHERE id_ocorrencia = $2
-      RETURNING *;
-    `, [estado, id]);
-    return resultado.rows[0] || null;
-  }
+  
+static async atualizarEstado(id: number, estado: string) {
+  const resultado = await pool.query(
+    `
+    UPDATE ocorrencias
+    SET estado = $1,
+        data_fechamento = CASE
+          WHEN $1::text IN ('resolvida', 'cancelada') THEN CURRENT_TIMESTAMP
+          ELSE data_fechamento
+        END
+    WHERE id_ocorrencia = $2
+    RETURNING *;
+    `,
+    [estado, id]
+  );
+  return resultado.rows[0] || null;
+}
 
   static async atualizarDados(id: number, dados: any) {
     const resultado = await pool.query(`

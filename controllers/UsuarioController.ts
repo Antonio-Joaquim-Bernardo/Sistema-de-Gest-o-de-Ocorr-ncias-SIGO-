@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import UsuarioService from "../services/UsuarioService";
 import ApiResponse from "../utils/response";
+import { autenticar } from "@/middleware/auth";
 
 export default class UsuarioController {
+  /**
+   * Registra um novo usuário (público)
+   */
   static async criar(req: NextRequest) {
     try {
       const dados = await req.json();
@@ -13,6 +17,9 @@ export default class UsuarioController {
     }
   }
 
+  /**
+   * Login do usuário
+   */
   static async login(req: NextRequest) {
     try {
       const { email, senha } = await req.json();
@@ -41,17 +48,25 @@ export default class UsuarioController {
     }
   }
 
-  static async listar() {
+  /**
+   * Lista todos os usuários (apenas autenticado)
+   */
+  static async listar(req: NextRequest) {
     try {
+      autenticar(req); // Apenas verifica autenticação
       const usuarios = await UsuarioService.listarUsuarios();
       return ApiResponse.sucesso(usuarios);
     } catch (erro: any) {
-      return ApiResponse.erroInterno(erro.message);
+      return ApiResponse.naoAutorizado(erro.message);
     }
   }
 
-  static async buscarPorId(id: number) {
+  /**
+   * Busca um usuário por ID (apenas autenticado)
+   */
+  static async buscarPorId(id: number, req: NextRequest) {
     try {
+      autenticar(req);
       const usuario = await UsuarioService.buscarUsuario(id);
       return ApiResponse.sucesso(usuario);
     } catch (erro: any) {
@@ -59,8 +74,17 @@ export default class UsuarioController {
     }
   }
 
+  /**
+   * Atualiza dados do usuário (apenas o próprio ou admin)
+   */
   static async atualizar(id: number, req: NextRequest) {
     try {
+      const usuarioLogado = autenticar(req);
+      // 🔒 Verifica permissão: apenas o próprio ou super_admin
+      if (usuarioLogado.tipo_funcao !== "super_admin" && usuarioLogado.id_usuario !== id) {
+        throw new Error("Você não tem permissão para atualizar este usuário.");
+      }
+
       const dados = await req.json();
       const usuario = await UsuarioService.atualizarUsuario(id, dados);
       return ApiResponse.sucesso({ usuario }, "Usuário atualizado com sucesso.");
@@ -69,8 +93,16 @@ export default class UsuarioController {
     }
   }
 
+  /**
+   * Atualiza a senha do usuário (apenas o próprio)
+   */
   static async atualizarSenha(id: number, req: NextRequest) {
     try {
+      const usuarioLogado = autenticar(req);
+      if (usuarioLogado.id_usuario !== id) {
+        throw new Error("Você só pode alterar sua própria senha.");
+      }
+
       const { novaSenha } = await req.json();
       const usuario = await UsuarioService.atualizarSenha(id, novaSenha);
       return ApiResponse.sucesso({ usuario }, "Senha atualizada com sucesso.");
@@ -79,8 +111,16 @@ export default class UsuarioController {
     }
   }
 
+  /**
+   * Atualiza o estado do usuário (apenas super_admin)
+   */
   static async atualizarEstado(id: number, req: NextRequest) {
     try {
+      const usuarioLogado = autenticar(req);
+      if (usuarioLogado.tipo_funcao !== "super_admin") {
+        throw new Error("Apenas Super Administradores podem alterar estados.");
+      }
+
       const { estado } = await req.json();
       const usuario = await UsuarioService.atualizarEstado(id, estado);
       const { senha, ...usuarioSeguro } = usuario;
@@ -93,10 +133,22 @@ export default class UsuarioController {
     }
   }
 
+  /**
+   * Atualiza a função do usuário (apenas super_admin)
+   */
   static async atualizarFuncao(id: number, req: NextRequest) {
     try {
+      const usuarioLogado = autenticar(req);
+      if (usuarioLogado.tipo_funcao !== "super_admin") {
+        throw new Error("Apenas Super Administradores podem alterar funções.");
+      }
+
       const { tipo_funcao } = await req.json();
-      const usuario = await UsuarioService.atualizarFuncao(id, tipo_funcao);
+      const usuario = await UsuarioService.atualizarFuncao(
+        id,
+        tipo_funcao,
+        usuarioLogado // 👈 Passa o usuário logado para proteção extra
+      );
       const { senha, ...usuarioSeguro } = usuario;
       return ApiResponse.sucesso(
         { usuario: usuarioSeguro },
@@ -107,12 +159,20 @@ export default class UsuarioController {
     }
   }
 
-  static async eliminar(id: number) {
+  /**
+   * Elimina um usuário (apenas super_admin)
+   */
+  static async eliminar(id: number, req: NextRequest) {
     try {
-      await UsuarioService.eliminarUsuario(id);
+      const usuarioLogado = autenticar(req);
+      if (usuarioLogado.tipo_funcao !== "super_admin") {
+        throw new Error("Apenas Super Administradores podem eliminar usuários.");
+      }
+
+      await UsuarioService.eliminarUsuario(id, usuarioLogado); // 👈 Passa o usuário logado
       return ApiResponse.sucesso(null, "Usuário eliminado com sucesso.");
     } catch (erro: any) {
-      return ApiResponse.naoEncontrado(erro.message);
+      return ApiResponse.erro(erro.message, 400);
     }
   }
 }

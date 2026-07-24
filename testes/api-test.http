@@ -14,9 +14,9 @@ Content-Type: application/json
 
 {
   "nome_completo": "João Silva",
-  "email": "joao@email.com",
+  "email": "joaonssa@gmail.com",
   "senha": "123456",
-  "bi": "123456789",
+  "bi": "1234569",
   "data_nascimento": "1990-01-01",
   "morada": "Luanda, Angola",
   "telefone": "923456789",
@@ -33,9 +33,6 @@ Content-Type: application/json
   "senha": "superadmin2026"
 }
 
-### Listar ocorrências
-GET {{baseUrl}}/ocorrencias
-Authorization: Bearer {{token}}
 ### 1.3 Logout
 POST {{baseUrl}}/auth/logout
 
@@ -59,12 +56,12 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "nome": "Proteção Civil",
+  "nome": "Proteção Civils",
   "descricao": "Serviço de proteção civil"
 }
 
 ### 3.3 Buscar entidade por ID
-GET {{baseUrl}}/entidades/1
+GET {{baseUrl}}/entidades/2
 
 ### 3.4 Atualizar entidade (apenas super_admin)
 PUT {{baseUrl}}/entidades/1
@@ -77,7 +74,7 @@ Content-Type: application/json
 }
 
 ### 3.5 Eliminar entidade (apenas super_admin)
-DELETE {{baseUrl}}/entidades/1
+DELETE {{baseUrl}}/entidades/4
 Authorization: Bearer {{token}}
 
 ### ============================================
@@ -104,11 +101,11 @@ GET {{baseUrl}}/ocorrencias
 Authorization: Bearer {{token}}
 
 ### 4.3 Buscar ocorrência por ID
-GET {{baseUrl}}/ocorrencias/1
+GET {{baseUrl}}/ocorrencias/2
 Authorization: Bearer {{token}}
 
 ### 4.4 Atualizar estado da ocorrência (PATCH)
-PATCH {{baseUrl}}/ocorrencias/1
+PATCH {{baseUrl}}/ocorrencias/4
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -117,7 +114,7 @@ Content-Type: application/json
 }
 
 ### 4.5 Atualizar dados da ocorrência (PUT)
-PUT {{baseUrl}}/ocorrencias/1
+PUT {{baseUrl}}/ocorrencias/3
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -131,7 +128,7 @@ Content-Type: application/json
 }
 
 ### 4.6 Eliminar ocorrência (apenas admin)
-DELETE {{baseUrl}}/ocorrencias/1
+DELETE {{baseUrl}}/ocorrencias/3
 Authorization: Bearer {{token}}
 
 ### ============================================
@@ -139,7 +136,7 @@ Authorization: Bearer {{token}}
 ### ============================================
 
 ### 5.1 Adicionar entidades à ocorrência
-POST {{baseUrl}}/ocorrencias/1/entidades
+POST {{baseUrl}}/ocorrencias/7/entidades
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -148,11 +145,11 @@ Content-Type: application/json
 }
 
 ### 5.2 Listar entidades da ocorrência
-GET {{baseUrl}}/ocorrencias/1/entidades
+GET {{baseUrl}}/ocorrencias/7/entidades
 Authorization: Bearer {{token}}
 
 ### 5.3 Remover entidade da ocorrência
-DELETE {{baseUrl}}/ocorrencias/1/entidades
+DELETE {{baseUrl}}/ocorrencias/7/entidades
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -165,11 +162,11 @@ Content-Type: application/json
 ### ============================================
 
 ### 6.1 Listar histórico de uma ocorrência
-GET {{baseUrl}}/ocorrencias/1/historico
+GET {{baseUrl}}/ocorrencias/3/historico
 Authorization: Bearer {{token}}
 
 ### 6.2 Buscar histórico por ID
-GET {{baseUrl}}/historico/1
+GET {{baseUrl}}/historico/3
 Authorization: Bearer {{token}}
 
 ### ============================================
@@ -181,11 +178,11 @@ GET {{baseUrl}}/usuarios
 Authorization: Bearer {{token}}
 
 ### 7.2 Buscar usuário por ID
-GET {{baseUrl}}/usuarios/1
+GET {{baseUrl}}/usuarios/9
 Authorization: Bearer {{token}}
 
 ### 7.3 Atualizar dados do usuário
-PUT {{baseUrl}}/usuarios/1
+PUT {{baseUrl}}/usuarios/9
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -198,7 +195,7 @@ Content-Type: application/json
 }
 
 ### 7.4 Atualizar senha
-PUT {{baseUrl}}/usuarios/1/senha
+PUT {{baseUrl}}/usuarios/9/senha
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -207,7 +204,7 @@ Content-Type: application/json
 }
 
 ### 7.5 Atualizar estado do usuário (apenas super_admin)
-PATCH {{baseUrl}}/usuarios/1/estado
+PATCH {{baseUrl}}/usuarios/7/estado
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -216,7 +213,7 @@ Content-Type: application/json
 }
 
 ### 7.6 Atualizar função do usuário (apenas super_admin)
-PATCH {{baseUrl}}/usuarios/1/funcao
+PATCH {{baseUrl}}/usuarios/6/funcao
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -225,7 +222,7 @@ Content-Type: application/json
 }
 
 ### 7.7 Eliminar usuário (apenas super_admin)
-DELETE {{baseUrl}}/usuarios/1
+DELETE {{baseUrl}}/usuarios/7
 Authorization: Bearer {{token}}
 
 ### ============================================
@@ -238,21 +235,21 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "id_ocorrencia": 1,
+  "id_ocorrencia": 3,
   "tipo": "imagem",
   "arquivo": "https://exemplo.com/foto.jpg"
 }
 
 ### 8.2 Listar evidências de uma ocorrência
-GET {{baseUrl}}/evidencias/ocorrencia/1
+GET {{baseUrl}}/evidencias/ocorrencia/3
 Authorization: Bearer {{token}}
 
 ### 8.3 Buscar evidência por ID
-GET {{baseUrl}}/evidencias/1
+GET {{baseUrl}}/evidencias/2
 Authorization: Bearer {{token}}
 
 ### 8.4 Eliminar evidência
-DELETE {{baseUrl}}/evidencias/1
+DELETE {{baseUrl}}/evidencias/2
 Authorization: Bearer {{token}}
 
 ### ============================================
@@ -280,5 +277,5 @@ GET {{baseUrl}}/dashboard
 Authorization: Bearer {{token}}
 
 ### 10.2 Estatísticas por entidade (admin)
-GET {{baseUrl}}/dashboard/entidade/1
+GET {{baseUrl}}/dashboard/entidade/3
 Authorization: Bearer {{token}}

@@ -1,6 +1,7 @@
 import OcorrenciaModel from "../models/OcorrenciaModel";
 import UsuarioModel from "../models/UsuarioModel";
 import HistoricoService from "./HistoricoService";
+import NotificacaoService from "./NotificacaoService";
 import { UsuarioToken } from "@/lib/auth";
 import { obterEntidadeAdministrador } from "@/middleware/permissions";
 
@@ -22,10 +23,18 @@ export default class OcorrenciaService {
 
     const ocorrencia = await OcorrenciaModel.criar(dados);
 
+    // Histórico
     await HistoricoService.registrar({
       id_usuario: dados.id_usuario,
       id_ocorrencia: ocorrencia.id_ocorrencia,
       acao: "Ocorrência criada.",
+    });
+
+    // Notificação para o cidadão
+    await NotificacaoService.criarNotificacao({
+      id_usuario: dados.id_usuario,
+      id_ocorrencia: ocorrencia.id_ocorrencia,
+      mensagem: `A sua ocorrência "${ocorrencia.titulo}" foi criada com sucesso.`,
     });
 
     return ocorrencia;
@@ -91,10 +100,18 @@ export default class OcorrenciaService {
     const anterior = await this.buscarOcorrencia(id, usuario);
     const atualizada = await OcorrenciaModel.atualizarEstado(id, estado);
 
+    // Histórico
     await HistoricoService.registrar({
       id_usuario: usuario.id_usuario,
       id_ocorrencia: id,
       acao: `Estado alterado de ${anterior.estado} para ${estado}.`,
+    });
+
+    // Notificação para o cidadão
+    await NotificacaoService.criarNotificacao({
+      id_usuario: anterior.id_usuario,
+      id_ocorrencia: id,
+      mensagem: `A ocorrência "${anterior.titulo}" mudou para "${estado}".`,
     });
 
     return atualizada;

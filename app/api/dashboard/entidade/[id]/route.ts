@@ -1,24 +1,24 @@
 import { NextRequest } from "next/server";
-import EvidenciaController from "@/controllers/EvidenciaController";
+import DashboardController from "@/controllers/DashboardController";
 
 interface Params {
   params: Promise<{ id: string }>;
 }
 
-function obterIdOcorrencia(id: string): number {
-  const idOcorrencia = Number(id);
-  if (isNaN(idOcorrencia)) {
-    throw new Error("ID da ocorrência inválido.");
+function obterIdEntidade(id: string): number {
+  const idEntidade = Number(id);
+  if (isNaN(idEntidade)) {
+    throw new Error("ID da entidade inválido.");
   }
-  return idOcorrencia;
+  return idEntidade;
 }
 
 export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    return await EvidenciaController.listarPorOcorrencia(
+    return await DashboardController.estatisticasPorEntidade(
       request,
-      obterIdOcorrencia(id)
+      obterIdEntidade(id)
     );
   } catch (erro: any) {
     return Response.json(

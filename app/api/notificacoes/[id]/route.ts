@@ -1,18 +1,28 @@
 import { NextRequest } from "next/server";
 import NotificacaoController from "@/controllers/NotificacaoController";
-import { obterId } from "@/utils/helpers";
 
 interface Params {
   params: Promise<{ id: string }>;
 }
 
+function obterIdNotificacao(id: string): number {
+  const idNotificacao = Number(id);
+  if (isNaN(idNotificacao)) {
+    throw new Error("ID da notificação inválido.");
+  }
+  return idNotificacao;
+}
+
 export async function PATCH(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    return await NotificacaoController.marcarComoLida(request, obterId(id));
-  } catch (error: any) {
+    return await NotificacaoController.marcarComoLida(
+      request,
+      obterIdNotificacao(id)
+    );
+  } catch (erro: any) {
     return Response.json(
-      { sucesso: false, mensagem: error.message },
+      { mensagem: erro.message },
       { status: 400 }
     );
   }
@@ -21,10 +31,13 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
-    return await NotificacaoController.eliminar(request, obterId(id));
-  } catch (error: any) {
+    return await NotificacaoController.eliminar(
+      request,
+      obterIdNotificacao(id)
+    );
+  } catch (erro: any) {
     return Response.json(
-      { sucesso: false, mensagem: error.message },
+      { mensagem: erro.message },
       { status: 400 }
     );
   }

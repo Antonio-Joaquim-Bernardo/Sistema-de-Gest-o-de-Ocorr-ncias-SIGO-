@@ -9,7 +9,7 @@ CREATE TABLE usuarios (
     id_usuario SERIAL PRIMARY KEY,
     nome_completo VARCHAR(150) NOT NULL,
     email VARCHAR(120) UNIQUE NOT NULL,
-    bi VARCHAR(20) UNIQUE,
+    bi VARCHAR(20) UNIQUE NOT NULL,
     data_nascimento DATE,
     morada VARCHAR(200),
     foto_perfil TEXT,

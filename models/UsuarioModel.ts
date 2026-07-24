@@ -50,6 +50,12 @@ export default class UsuarioModel {
     return resultado.rows[0] || null;
   }
 
+static async buscarPorBI(bi: string) {
+  const sql = `SELECT * FROM usuarios WHERE bi = $1;`;
+  const resultado = await pool.query(sql, [bi]);
+  return resultado.rows[0] || null;
+}
+
   static async atualizar(id_usuario: number, dados: any) {
     const sql = `
       UPDATE usuarios
@@ -90,4 +96,6 @@ export default class UsuarioModel {
     await pool.query(`DELETE FROM usuarios WHERE id_usuario = $1;`, [id_usuario]);
     return true;
   }
+
+
 }
