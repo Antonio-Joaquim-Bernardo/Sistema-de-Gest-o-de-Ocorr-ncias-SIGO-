@@ -8,7 +8,7 @@ npm install jsonwebtoken
 npm install -D @types/jsonwebtoken
 npm install pg
 npm install -D @types/pg
-
+npm install nodemailer @types/nodemailer
 
 OBS: O bcrypt é uma biblioteca utilizada para criptografar (hash) senhas antes de guardá-las na base de dados.
 

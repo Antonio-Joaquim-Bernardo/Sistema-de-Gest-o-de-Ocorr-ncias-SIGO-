@@ -1,5 +1,5 @@
 -- ==========================================
--- BANCO DE DADOS SIGO
+-- BANCO DE DADOS SIGO - VERSÃO FINAL
 -- ==========================================
 
 -- ==========================================
@@ -113,6 +113,20 @@ CREATE TABLE historico (
 );
 
 -- ==========================================
+-- TABELA VERIFICAÇÕES
+-- ==========================================
+CREATE TABLE verificacoes (
+    id_verificacao SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    codigo VARCHAR(6) NOT NULL,
+    tipo VARCHAR(20) DEFAULT 'email' CHECK (tipo IN ('email', 'telefone')),
+    expiracao TIMESTAMP NOT NULL,
+    usado BOOLEAN DEFAULT FALSE,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_verificacao_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+-- ==========================================
 -- ÍNDICES PARA MELHOR PERFORMANCE
 -- ==========================================
 CREATE INDEX idx_ocorrencias_estado ON ocorrencias(estado);
@@ -121,3 +135,7 @@ CREATE INDEX idx_ocorrencias_categoria ON ocorrencias(id_categoria);
 CREATE INDEX idx_historico_ocorrencia ON historico(id_ocorrencia);
 CREATE INDEX idx_notificacoes_usuario ON notificacoes(id_usuario);
 CREATE INDEX idx_evidencias_ocorrencia ON evidencias(id_ocorrencia);
+CREATE INDEX idx_verificacoes_codigo ON verificacoes(codigo);
+CREATE INDEX idx_verificacoes_usuario ON verificacoes(id_usuario);
+
+

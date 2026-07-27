@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import UsuarioModel from "../models/UsuarioModel";
 import { criarToken, UsuarioToken } from "@/lib/auth";
+import VerificacaoService from "./VerificacaoService";
 
 export default class UsuarioService {
   /**
@@ -36,7 +37,14 @@ export default class UsuarioService {
     dados.estado = "pendente";
 
     try {
-      return await UsuarioModel.criar(dados);
+      const usuarioCriado = await UsuarioModel.criar(dados);
+
+      // 🆕 Envia código de verificação (em background)
+      // Usamos .catch() para não bloquear o registo se o email falhar
+      VerificacaoService.enviarCodigoEmail(usuarioCriado.id_usuario)
+        .catch(err => console.error("Falha ao enviar email de verificação:", err));
+
+      return usuarioCriado;
     } catch (error: any) {
       // Captura erros de violação de unique do PostgreSQL
       if (error.code === "23505") {
@@ -64,6 +72,10 @@ export default class UsuarioService {
 
     if (usuario.estado === "bloqueado") {
       throw new Error("Esta conta está bloqueada.");
+    }
+
+    if (usuario.estado === "pendente") {
+      throw new Error("Conta pendente de verificação. Verifique o seu email.");
     }
 
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
@@ -183,9 +195,6 @@ export default class UsuarioService {
     if (usuarioAlvo.tipo_funcao === "super_admin") {
       throw new Error("Não é possível alterar a função de um Super Administrador.");
     }
-
-    // Se o alvo for o próprio super_admin, também bloqueia (já está coberto pelo if acima)
-    // Mas garantimos que não há loophole
 
     return await UsuarioModel.atualizarFuncao(id, tipo_funcao);
   }
