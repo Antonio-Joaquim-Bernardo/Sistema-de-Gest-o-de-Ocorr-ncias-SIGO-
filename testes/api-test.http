@@ -221,8 +221,15 @@ Content-Type: application/json
   "tipo_funcao": "admin_inema"
 }
 
+POST {{baseUrl}}/auth/verificar
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "codigo": "123456"
+}
 ### 7.7 Eliminar usuário (apenas super_admin)
-DELETE {{baseUrl}}/usuarios/7
+DELETE {{baseUrl}}/usuarios/31
 Authorization: Bearer {{token}}
 
 ### ============================================

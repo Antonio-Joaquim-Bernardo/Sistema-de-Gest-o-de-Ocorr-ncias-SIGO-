@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import UsuarioService from "../services/UsuarioService";
 import ApiResponse from "../utils/response";
 import { autenticar } from "@/middleware/auth";
+import { UsuarioToken } from "@/lib/auth";
 
 export default class UsuarioController {
   /**
@@ -49,11 +50,32 @@ export default class UsuarioController {
   }
 
   /**
+   * Logout – remove o cookie
+   */
+  static async logout() {
+    const resposta = NextResponse.json(
+      {
+        sucesso: true,
+        mensagem: "Logout realizado com sucesso.",
+      },
+      { status: 200 }
+    );
+    resposta.cookies.set("token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    });
+    return resposta;
+  }
+
+  /**
    * Lista todos os usuários (apenas autenticado)
    */
   static async listar(req: NextRequest) {
     try {
-      autenticar(req); // Apenas verifica autenticação
+      autenticar(req);
       const usuarios = await UsuarioService.listarUsuarios();
       return ApiResponse.sucesso(usuarios);
     } catch (erro: any) {
@@ -64,7 +86,7 @@ export default class UsuarioController {
   /**
    * Busca um usuário por ID (apenas autenticado)
    */
-  static async buscarPorId(id: number, req: NextRequest) {
+  static async buscarPorId(id: number, req: NextRequest) {  // 👈 Adiciona req
     try {
       autenticar(req);
       const usuario = await UsuarioService.buscarUsuario(id);
@@ -80,7 +102,6 @@ export default class UsuarioController {
   static async atualizar(id: number, req: NextRequest) {
     try {
       const usuarioLogado = autenticar(req);
-      // 🔒 Verifica permissão: apenas o próprio ou super_admin
       if (usuarioLogado.tipo_funcao !== "super_admin" && usuarioLogado.id_usuario !== id) {
         throw new Error("Você não tem permissão para atualizar este usuário.");
       }
@@ -147,7 +168,7 @@ export default class UsuarioController {
       const usuario = await UsuarioService.atualizarFuncao(
         id,
         tipo_funcao,
-        usuarioLogado // 👈 Passa o usuário logado para proteção extra
+        usuarioLogado
       );
       const { senha, ...usuarioSeguro } = usuario;
       return ApiResponse.sucesso(
@@ -165,14 +186,13 @@ export default class UsuarioController {
   static async eliminar(id: number, req: NextRequest) {
     try {
       const usuarioLogado = autenticar(req);
-      if (usuarioLogado.tipo_funcao !== "super_admin") {
-        throw new Error("Apenas Super Administradores podem eliminar usuários.");
-      }
-
-      await UsuarioService.eliminarUsuario(id, usuarioLogado); // 👈 Passa o usuário logado
+      await UsuarioService.eliminarUsuario(id, usuarioLogado);
       return ApiResponse.sucesso(null, "Usuário eliminado com sucesso.");
     } catch (erro: any) {
-      return ApiResponse.erro(erro.message, 400);
+      if (erro.message.includes("Super Administradores")) {
+        return ApiResponse.erro(erro.message, 403);
+      }
+      return ApiResponse.naoEncontrado(erro.message);
     }
   }
 }

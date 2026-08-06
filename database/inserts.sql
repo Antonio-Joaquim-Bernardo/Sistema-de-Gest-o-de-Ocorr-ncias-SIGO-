@@ -2,14 +2,19 @@
 -- DADOS INICIAIS
 -- ==========================================
 
--- Entidades padrão
+-- ==========================================
+-- ENTIDADES PADRÃO
+-- ==========================================
 INSERT INTO entidades_responsaveis (nome, descricao)
 VALUES 
     ('INEMA', 'Instituto Nacional de Emergência Médica'),
     ('Bombeiros', 'Serviço de proteção, combate a incêndios e salvamento'),
-    ('PNA', 'Polícia Nacional de Angola');
+    ('PNA', 'Polícia Nacional de Angola')
+ON CONFLICT (nome) DO NOTHING;
 
--- Categorias padrão
+-- ==========================================
+-- CATEGORIAS PADRÃO
+-- ==========================================
 INSERT INTO categorias_ocorrencias (nome, descricao)
 VALUES 
     ('Incêndio', 'Ocorrências relacionadas a incêndios.'),
@@ -17,14 +22,16 @@ VALUES
     ('Emergência médica', 'Situações que necessitam de atendimento médico.'),
     ('Assalto', 'Ocorrências relacionadas a crimes e assaltos.'),
     ('Desastre natural', 'Inundações, desabamentos e outros eventos naturais.'),
-    ('Pessoa desaparecida', 'Casos de desaparecimento de pessoas.');
+    ('Pessoa desaparecida', 'Casos de desaparecimento de pessoas.')
+ON CONFLICT (nome) DO NOTHING;
 
 -- ==========================================
--- SUPER ADMIN (senha: admin123)
+-- SUPER ADMIN (senha: superadmin2026)
 -- ==========================================
 INSERT INTO usuarios (
     nome_completo,
     email,
+    bi,
     senha,
     tipo_funcao,
     estado
@@ -32,7 +39,21 @@ INSERT INTO usuarios (
 VALUES (
     'Super Administrador',
     'superadmin@gmail.com',
-    '$2b$10$XMsTmSmwfVOep8YgFMFJhukT..t/Pt/Ol6A1nN/1g4XqMSrqQ5TYu',
+    '000000000',  -- BI placeholder (obrigatório por ser UNIQUE NOT NULL)
+    '$2b$10$XMsTmSmwfVOep8YgFMFJhukT..t/Pt/Ol6A1nN/1g4XqMSrqQ5TYu',  -- hash de "superadmin2026"
     'super_admin',
     'confirmado'
-) ON CONFLICT (email) DO NOTHING;
+)
+ON CONFLICT (email) DO NOTHING;
+
+-- ==========================================
+-- VERIFICA SE O SUPER ADMIN FOI CRIADO
+-- ==========================================
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM usuarios WHERE email = 'superadmin@gmail.com') THEN
+        RAISE NOTICE 'Super admin não foi criado. Verifique o banco de dados.';
+    ELSE
+        RAISE NOTICE 'Super admin criado com sucesso.';
+    END IF;
+END $$;

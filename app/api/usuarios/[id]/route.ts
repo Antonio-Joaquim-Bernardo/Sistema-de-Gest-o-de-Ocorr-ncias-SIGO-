@@ -7,43 +7,52 @@ interface Params {
 
 function obterIdUsuario(id: string): number {
   const idUsuario = Number(id);
-  if (isNaN(idUsuario)) {
+  if (isNaN(idUsuario) || idUsuario <= 0) {
     throw new Error("ID do usuário inválido.");
   }
   return idUsuario;
 }
 
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(
+  request: NextRequest,
+  { params }: Params
+) {
   try {
     const { id } = await params;
-    return await UsuarioController.buscarPorId(obterIdUsuario(id));
+    return await UsuarioController.buscarPorId(obterIdUsuario(id), request);
   } catch (erro: any) {
     return Response.json(
-      { mensagem: erro.message },
+      { sucesso: false, mensagem: erro.message },
       { status: 400 }
     );
   }
 }
 
-export async function PUT(request: NextRequest, { params }: Params) {
+export async function PUT(
+  request: NextRequest,
+  { params }: Params
+) {
   try {
     const { id } = await params;
     return await UsuarioController.atualizar(obterIdUsuario(id), request);
   } catch (erro: any) {
     return Response.json(
-      { mensagem: erro.message },
+      { sucesso: false, mensagem: erro.message },
       { status: 400 }
     );
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: Params) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: Params
+) {
   try {
     const { id } = await params;
-    return await UsuarioController.eliminar(obterIdUsuario(id));
+    return await UsuarioController.eliminar(obterIdUsuario(id), request);
   } catch (erro: any) {
     return Response.json(
-      { mensagem: erro.message },
+      { sucesso: false, mensagem: erro.message },
       { status: 400 }
     );
   }

@@ -123,8 +123,9 @@ CREATE TABLE verificacoes (
     expiracao TIMESTAMP NOT NULL,
     usado BOOLEAN DEFAULT FALSE,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_verificacao_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    CONSTRAINT fk_verificacao_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE  -- 🔒 Corrigido!
 );
+
 
 -- ==========================================
 -- ÍNDICES PARA MELHOR PERFORMANCE
@@ -137,5 +138,3 @@ CREATE INDEX idx_notificacoes_usuario ON notificacoes(id_usuario);
 CREATE INDEX idx_evidencias_ocorrencia ON evidencias(id_ocorrencia);
 CREATE INDEX idx_verificacoes_codigo ON verificacoes(codigo);
 CREATE INDEX idx_verificacoes_usuario ON verificacoes(id_usuario);
-
-

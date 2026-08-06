@@ -1,10 +1,305 @@
-POST http://localhost:3000/api/auth/register
+### ============================================
+### VARIÁVEIS GLOBAIS
+### ============================================
+@baseUrl = http://localhost:3000/api
+@token = {{login.response.body.token}}
+
+### ============================================
+### 1. AUTENTICAÇÃO
+### ============================================
+
+### 1.1 Registrar novo usuário (cidadão)
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "nome_completo": "António",
+  "nome_completo": "António Joaquim Bernardo",
   "email": "antoniojoaquimbernardo2005@gmail.com",
   "senha": "123456",
   "bi": "009373408UE044",
-  "telefone": "928776970"
+  "telefone": "928776970",
+  "data_nascimento": "2005-01-01",
+  "genero": "Masculino",
+  "morada": "Uíge, Angola"
 }
+
+### 1.2 Verificar código (público - NÃO usa token)
+### ⚠️ Atenção: Substitua o código pelo que recebeu no email
+POST {{baseUrl}}/auth/verificar
+Content-Type: application/json
+
+{
+  "email": "antoniojoaquimbernardo2005@gmail.com",
+  "codigo": "851215"
+}
+
+### 1.3 Login (obter token) - Só funciona se a conta já estiver confirmada
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "antoniojoaquimbernardo2005@gmail.com",
+  "senha": "123456"
+}
+
+### 1.4 Reenviar código (requer autenticação)
+POST {{baseUrl}}/auth/reenviar-codigo
+Authorization: Bearer {{token}}
+
+### 1.5 Logout
+POST {{baseUrl}}/auth/logout
+
+### ============================================
+### 2. CATEGORIAS (público)
+### ============================================
+
+### 2.1 Listar categorias
+GET {{baseUrl}}/categorias
+
+### ============================================
+### 3. ENTIDADES
+### ============================================
+
+### 3.1 Listar entidades (público)
+GET {{baseUrl}}/entidades
+
+### 3.2 Criar entidade (apenas super_admin)
+POST {{baseUrl}}/entidades
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Proteção Civil",
+  "descricao": "Serviço de proteção civil"
+}
+
+### 3.3 Buscar entidade por ID
+GET {{baseUrl}}/entidades/1
+
+### 3.4 Atualizar entidade (apenas super_admin)
+PUT {{baseUrl}}/entidades/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "INEMA - Atualizado",
+  "descricao": "Instituto Nacional de Emergência Médica - Atualizado"
+}
+
+### 3.5 Eliminar entidade (apenas super_admin)
+DELETE {{baseUrl}}/entidades/4
+Authorization: Bearer {{token}}
+
+### ============================================
+### 4. OCORRÊNCIAS
+### ============================================
+
+### 4.1 Criar ocorrência (autenticado)
+POST {{baseUrl}}/ocorrencias
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id_categoria": 1,
+  "titulo": "Incêndio no Bairro",
+  "descricao": "Incêndio numa residência no bairro popular.",
+  "prioridade": "alta",
+  "endereco": "Rua 10, Bairro Popular, Luanda",
+  "latitude": -8.8383,
+  "longitude": 13.2344
+}
+
+### 4.2 Listar todas as ocorrências (conforme permissão)
+GET {{baseUrl}}/ocorrencias
+Authorization: Bearer {{token}}
+
+### 4.3 Buscar ocorrência por ID
+GET {{baseUrl}}/ocorrencias/1
+Authorization: Bearer {{token}}
+
+### 4.4 Atualizar estado da ocorrência (PATCH)
+PATCH {{baseUrl}}/ocorrencias/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "estado": "em_atendimento"
+}
+
+### 4.5 Atualizar dados da ocorrência (PUT)
+PUT {{baseUrl}}/ocorrencias/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "titulo": "Incêndio no Bairro - Atualizado",
+  "descricao": "Incêndio numa residência no bairro popular. Equipa enviada.",
+  "prioridade": "critica",
+  "endereco": "Rua 10, Bairro Popular, Luanda",
+  "latitude": -8.8383,
+  "longitude": 13.2344
+}
+
+### 4.6 Eliminar ocorrência (apenas admin)
+DELETE {{baseUrl}}/ocorrencias/1
+Authorization: Bearer {{token}}
+
+### ============================================
+### 5. OCORRÊNCIAS - ENTIDADES
+### ============================================
+
+### 5.1 Adicionar entidades à ocorrência
+POST {{baseUrl}}/ocorrencias/1/entidades
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "entidades": [1, 2]
+}
+
+### 5.2 Listar entidades da ocorrência
+GET {{baseUrl}}/ocorrencias/1/entidades
+Authorization: Bearer {{token}}
+
+### 5.3 Remover entidade da ocorrência
+DELETE {{baseUrl}}/ocorrencias/1/entidades
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id_entidade": 1
+}
+
+### ============================================
+### 6. HISTÓRICO
+### ============================================
+
+### 6.1 Listar histórico de uma ocorrência
+GET {{baseUrl}}/ocorrencias/1/historico
+Authorization: Bearer {{token}}
+
+### 6.2 Buscar histórico por ID
+GET {{baseUrl}}/historico/1
+Authorization: Bearer {{token}}
+
+### ============================================
+### 7. USUÁRIOS
+### ============================================
+
+### 7.1 Listar usuários (apenas autenticado)
+GET {{baseUrl}}/usuarios
+Authorization: Bearer {{token}}
+
+### 7.2 Buscar usuário por ID
+GET {{baseUrl}}/usuarios/1
+Authorization: Bearer {{token}}
+
+### 7.3 Atualizar dados do usuário
+PUT {{baseUrl}}/usuarios/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome_completo": "João Silva Atualizado",
+  "email": "joao.novo@email.com",
+  "telefone": "923456789",
+  "morada": "Nova Morada",
+  "foto_perfil": "url_da_foto"
+}
+
+### 7.4 Atualizar senha
+PUT {{baseUrl}}/usuarios/1/senha
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "novaSenha": "novaSenha123"
+}
+
+### 7.5 Atualizar estado do usuário (apenas super_admin)
+PATCH {{baseUrl}}/usuarios/1/estado
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "estado": "confirmado"
+}
+
+### 7.6 Atualizar função do usuário (apenas super_admin)
+PATCH {{baseUrl}}/usuarios/1/funcao
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo_funcao": "admin_inema"
+}
+
+### 7.7 Eliminar usuário (apenas super_admin)
+DELETE {{baseUrl}}/usuarios/1
+Authorization: Bearer {{token}}
+
+### ============================================
+### 8. EVIDÊNCIAS
+### ============================================
+
+### 8.1 Adicionar evidência
+POST {{baseUrl}}/evidencias
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id_ocorrencia": 1,
+  "tipo": "imagem",
+  "arquivo": "https://exemplo.com/foto.jpg"
+}
+
+### 8.2 Listar evidências de uma ocorrência
+GET {{baseUrl}}/evidencias/ocorrencia/1
+Authorization: Bearer {{token}}
+
+### 8.3 Buscar evidência por ID
+GET {{baseUrl}}/evidencias/1
+Authorization: Bearer {{token}}
+
+### 8.4 Eliminar evidência
+DELETE {{baseUrl}}/evidencias/1
+Authorization: Bearer {{token}}
+
+### ============================================
+### 9. NOTIFICAÇÕES
+### ============================================
+
+### 9.1 Listar notificações de um usuário
+GET {{baseUrl}}/notificacoes/usuarios/1
+Authorization: Bearer {{token}}
+
+### 9.2 Marcar notificação como lida
+PATCH {{baseUrl}}/notificacoes/1
+Authorization: Bearer {{token}}
+
+### 9.3 Eliminar notificação
+DELETE {{baseUrl}}/notificacoes/1
+Authorization: Bearer {{token}}
+
+### ============================================
+### 10. DASHBOARD
+### ============================================
+
+### 10.1 Estatísticas gerais (apenas autenticado)
+GET {{baseUrl}}/dashboard
+Authorization: Bearer {{token}}
+
+### 10.2 Estatísticas por entidade (admin)
+GET {{baseUrl}}/dashboard/entidade/1
+Authorization: Bearer {{token}}
+
+### ============================================
+### 11. VALIDAÇÕES
+### ============================================
+
+### 11.1 Validar email
+GET {{baseUrl}}/validar/email?email=antoniojoaquimbernardo2005@gmail.com
+
+### 11.2 Validar BI
+GET {{baseUrl}}/validar/bi?bi=009373408UE044
